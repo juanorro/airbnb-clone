@@ -1,10 +1,15 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { isDaySelectable } from 'lib/dates';
+import { getCost } from 'lib/cost';
 
 const CalendarPage = () => {
+
+  const [from, setFrom] = useState();
+  const [to, setTo] = useState();
+  
   return (
     <div>
       <Head>
@@ -54,20 +59,30 @@ const CalendarPage = () => {
           </p>
           <div className='pt-6 flex justify-center availability-calendar'>
             <DayPicker
-            components={{
-              DayContent: (props) => (
-                <div className='relative text-right'>
+              styles={{
+                borderRadius: '0%'
+              }}
+              components={{
+                DayContent: (props) => (
                   <div 
-                    className={
+                    className={ `relative text-right border-none ${
                       !isDaySelectable(props.date) && 'text-gray-500'
-                    }
+                    }`}
                   >
-                    { props.date.getDate() }
+                    <div>
+                      { props.date.getDate() }
+                    </div>
+                    { isDaySelectable(props.date) && (
+                      <div className='-mt-2'>
+                        <span className={`bg-white text-black rounded-md font-bold px-1 text-xs`}>
+                          ${ getCost(props.date) }
+                        </span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )
-            }}
-          />
+                )
+              }}
+            />
           </div>
         </div>
       </div>
