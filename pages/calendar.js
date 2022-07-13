@@ -2,14 +2,17 @@ import Head from 'next/head';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { addDayToRange, getBlockedDates, getDatesBetweenDates, isDaySelectable } from 'lib/dates';
-import { getCost } from 'lib/cost';
+import { addDayToRange, calcNumberOfNightsBetweenDates, getBlockedDates, getDatesBetweenDates, isDaySelectable } from 'lib/dates';
+import { getCost, calcTotalCostOfStay } from 'lib/cost';
 import { getBookedDates } from 'lib/booking';
 
 const CalendarPage = () => {
 
   const [from, setFrom] = useState();
   const [to, setTo] = useState();
+
+  const [numberOfNights, setNumberOfNights] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
 
   const handleDayClick = (day) => {
     const range = addDayToRange(day, {
@@ -44,6 +47,9 @@ const CalendarPage = () => {
 
     setFrom(range.from);
     setTo(range.to);
+
+    setNumberOfNights(calcNumberOfNightsBetweenDates(range.from, range.to) + 1);
+    setTotalCost(calcTotalCostOfStay(range.from, range.to));
   };
 
   const yesterday = new Date();
@@ -98,6 +104,27 @@ const CalendarPage = () => {
         <div className='flex flex-col mt-10'>
           <p className='text-2xl font-bold text-center my-10'>
             Availability and prices per night
+          </p>
+          <p className='text-center'>
+            { numberOfNights > 0 && `Stay for ${ numberOfNights } nights.`}
+          </p>
+          <p className='text-center mt-2'>
+            { totalCost > 0 && `Total cost: $${ totalCost }`}
+          </p>
+          <p className='text-center'>
+            { from && to && (
+              <button
+                className='border px-2 py-1 mt-4'
+                onClick={ () => {
+                  setFrom(null);
+                  setTo(null);
+                  setNumberOfNights(0);
+                  setTotalCost(0);
+                }}
+              >
+                Reset
+              </button>
+            )}
           </p>
           <div className='pt-6 flex justify-center availability-calendar'>
             <DayPicker
